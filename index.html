@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web to App Converter - เปลี่ยนเว็บไซต์เป็นแอปมือถือ</title>
+    <!-- ใช้ Tailwind CSS สำหรับการจัดหน้าจอที่สวยงามและรองรับมือถือ -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- นำเข้าฟอนต์เพื่อความน่าใช้งาน -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* เอฟเฟกต์การโหลดแบบหมุนหมุน */
+        .loader {
+            border-top-color: #3b82f6;
+            animation: spinner 1.5s linear infinite;
+
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- ส่วนหัวของเว็บไซต์ (Header) -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg text-center py-8 px-4">
+        <h1 class="text-3xl md:text-4xl font-semibold mb-2">📱 Web to App Converter</h1>
+        <p class="text-blue-100 text-sm md:text-base font-light">แปลงเว็บไซต์โปรดของคุณให้กลายเป็นแอปพลิเคชัน Android (APK) ในไม่กี่วินาที</p>
+    </header>
+
+    <!-- ส่วนเนื้อหาหลัก (Main Content) -->
+    <main class="flex-grow container mx-auto max-w-2xl px-4 py-8">
+        <!-- การ์ดฟอร์มกรอกข้อมูล -->
+        <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-6 border border-slate-100">
+
+            <h2 class="text-xl font-medium text-slate-800 mb-6 flex items-center gap-2">
+                <span>✨</span> กรอกรายละเอียดเว็บไซต์ของคุณ
+            </h2>
+            
+            <form id="converterForm" class="space-y-5" onsubmit="handleConvert(event)">
+                <!-- ช่องใส่ URL -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2" for="webUrl">ลิงค์ URL ของเว็บไซต์ *</label>
+                    <input type="url" id="webUrl" required placeholder="https://example.com" 
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 transition">
+                </div>
+
+                <!-- ช่องใส่ชื่อแอป -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2" for="appName">ชื่อแอปพลิเคเคชันที่ต้องการ *</label>
+                    <input type="text" id="appName" required placeholder="เช่น My Anime App" 
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 transition">
+                </div>
+
+
+                <!-- การเลือกไอคอนจำลอง -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">เลือกสไตล์ไอคอนของแอป</label>
+                    <div class="grid grid-cols-4 gap-3">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition peer-checked:border-blue-500">
+                            <input type="radio" name="appIcon" value="🎬" checked class="sr-only">
+                            <span class="text-3xl mb-1">🎬</span>
+                            <span class="text-xs text-slate-500">บันเทิง</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
+                            <input type="radio" name="appIcon" value="🎮" class="sr-only">
+                            <span class="text-3xl mb-1">🎮</span>
+                            <span class="text-xs text-slate-500">เกม</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
+                            <input type="radio" name="appIcon" value="🌐" class="sr-only">
+                            <span class="text-3xl mb-1">🌐</span>
+                            <span class="text-xs text-slate-500">ทั่วไป</span>
+                        </label>
+
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
+                            <input type="radio" name="appIcon" value="📱" class="sr-only">
+                            <span class="text-3xl mb-1">📱</span>
+                            <span class="text-xs text-slate-500">ระบบ</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ปุ่มส่งข้อมูล -->
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                    <span>🚀</span> เริ่มสร้างไฟล์แอปพลิเคชัน (APK)
+                </button>
+            </form>
+        </div>
+
+        <!-- หน้าจอจำลองการประมวลผลและการดาวน์โหลด (กล่องผลลัพธ์) -->
+        <div id="resultBox" class="hidden bg-white rounded-2xl shadow-md p-6 border border-slate-100 text-center space-y-6">
+            <!-- ส่วนตัวโหลดจำลอง -->
+            <div id="loadingStatus" class="space-y-4">
+
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-100 h-14 w-14 mx-auto"></div>
+                <p id="statusMessage" class="text-slate-600 font-light">กำลังเชื่อมต่อกับเซิร์ฟเวอร์แปลงไฟล์...</p>
+                <div class="w-full bg-slate-100 rounded-full h-2">
+                    <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 5%"></div>
+                </div>
+            </div>
+
+            <!-- ส่วนปุ่มดาวน์โหลดเมื่อเสร็จสิ้น -->
+            <div id="downloadStatus" class="hidden space-y-4">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-500 text-3xl">
+                    ✓
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-slate-800">สร้างไฟล์ APK สำเร็จเรียบร้อย!</h3>
+                    <p class="text-slate-500 text-sm mt-1">พร้อมสำหรับนำไปติดตั้งบนอุปกรณ์ Android ของคุณ</p>
+                </div>
+                
+                <div class="bg-slate-50 rounded-xl p-4 text-left max-w-md mx-auto space-y-2 text-sm text-slate-600 border border-slate-100">
+                    <p><strong>📦 ชื่อแอป:</strong> <span id="resAppName"></span></p>
+
+                    <p><strong>🔗 ลิงค์ภายใน:</strong> <span id="resUrl" class="text-blue-600 break-all"></span></p>
+                    <p><strong>🗂️ รูปแบบแอป:</strong> Web-View Wrapper (APK)</p>
+                </div>
+
+                <div class="flex flex-col sm-flex-row gap-3 justify-center pt-2">
+                    <button id="downloadBtn" onclick="triggerDownload()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                        📥 ดาวน์โหลดไฟล์ APK ฟรี
+                    </button>
+                    <button onclick="resetForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-3 px-6 rounded-xl transition">
+                        สร้างแอปใหม่อีกครั้ง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ส่วนท้ายของหน้าเว็บ (Footer) -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-6 text-sm border-t border-slate-800">
+        <p>© 2026 Web to App Converter Project. พัฒนาขึ้นเพื่อการเรียนรู้และการสร้างแอปอย่างง่าย</p>
+
+    </footer>
+
+    <!-- ส่วนควบคุมการทำงานระบบ (JavaScript) -->
+    <script>
+        // กำหนดตัวแปรสำหรับเก็บไฟล์จริงที่ได้จากระบบหลังบ้าน (ถ้ามี)
+        let generatedFileBlob = null;
+        let finalFileName = "app-webview.apk";
+
+        function handleConvert(event) {
+            event.preventEvent();
+
+            const urlInput = document.getElementById('webUrl').value;
+            const nameInput = document.getElementById('appName').value;
+            const iconRadio = document.querySelector('input[name="appIcon"]:checked').value;
+
+            const resultBox = document.getElementById('resultBox');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const downloadStatus = document.getElementById('downloadStatus');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const progressBar = document.getElementById('progressBar');
+
+            resultBox.classList.remove('hidden');
+            loadingStatus.classList.remove('hidden');
+            downloadStatus.classList.add('hidden');
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+
+            // ลำดับขั้นตอนแสดงความคืบหน้าให้ผู้ใช้เห็นบนเซิร์ฟเวอร์หน้าบ้าน
+            const steps = [
+                { percent: 15, msg: "กำลังสแกนโครงสร้างเว็บไซต์และตรวจสอบ Responsive Layout..." },
+                { percent: 40, msg: "กำลังเตรียม Android Manifest และสร้าง WebApp Shell..." },
+                { percent: 65, msg: `กำลังฝังไอคอนแอป ${iconRadio} และตั้งชื่อระบบแอปเป็น "${nameInput}"...` },
+                { percent: 85, msg: "กำลังคอมไพล์ซอร์สโค้ดและบีบอัดเป็นไฟล์แอปพลิเคชัน (APK)..." },
+                { percent: 100, msg: "เสร็จสิ้นขั้นตอนการแปลงไฟล์!" }
+            ];
+
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+
+                    progressBar.style.width = steps[currentStep].percent + "%";
+                    statusMessage.innerText = steps[currentStep].msg;
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                    
+                    document.getElementById('resAppName').innerText = iconRadio + " " + nameInput;
+                    document.getElementById('resUrl').innerText = urlInput;
+
+                    // สลับสถานะกล่องแสดงผล
+                    loadingStatus.classList.add('hidden');
+                    downloadStatus.classList.remove('hidden');
+
+                    // [ส่วนสำคัญสำหรับการเชื่อมต่อเซิร์ฟเวอร์จริงในอนาคต]
+                    // คุณสามารถเปิดใช้งานโค้ด fetch ด้านล่างนี้เมื่อคุณพัฒนา API หลังบ้าน (Backend) เสร็จสิ้นแล้ว
+                    /*
+                    fetch('/api/convert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+
+                        body: JSON.stringify({ url: urlInput, name: nameInput, icon: iconRadio })
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        generatedFileBlob = blob;
+                        finalFileName = nameInput.toLowerCase().replace(/\s+/g, '-') + ".apk";
+                    });
+                    */
+                }
+            }, 1000);
+        }
+
+        // ฟังก์ชันดาวน์โหลดไฟล์
+        function triggerDownload() {
+            const nameInput = document.getElementById('appName').value || 'app';
+            
+            // ตรวจสอบว่ามีไฟล์จริงส่งกลับมาจากเซิร์ฟเวอร์Backend หรือไม่
+            if (generatedFileBlob) {
+                const link = document.createElement('a');
+
+                link.href = URL.createObjectURL(generatedFileBlob);
+                link.download = finalFileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                // หากรันโดดๆ บนเซิร์ฟเวอร์หน้าบ้าน จะทำการดาวน์โหลดไฟล์จำลอง (Mock File) เพื่อทดสอบระบบ UI ให้ก่อน
+                const dummyContent = "WEB-TO-APP WRAPPERS TEMPLATE\nGenerated via Web Server Client\nApp Name: " + nameInput;
+                const blob = new Blob([dummyContent], { type: 'application/vnd.android.package-archive' });
+                const link = document.createElement('a');
+                
+                link.href = URL.createObjectURL(blob);
+                link.download = nameInput.toLowerCase().replace(/\s+/g, '-') + "-mock.apk";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+
+        function resetForm() {
+            document.getElementById('converterForm').reset();
+            document.getElementById('resultBox').classList.add('hidden');
+            document.getElementById('progressBar').style.width = "5%";
+            generatedFileBlob = null;
+        }
+    </script>
+</body>
+</html>
